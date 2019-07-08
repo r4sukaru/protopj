@@ -1,20 +1,22 @@
 from django.shortcuts import render
-from .models import GoodsTBL
-
 from django.views import generic
 from .forms import GoodSearchForm
-from .models import Good
 from django.db.models import Q
+from .models import GoodsTBL
+from .models import CategoryTBL
+from .models import HighCategoryTBL
+from django.views.generic.base import TemplateView
+
 
 # Create your views here.
-class detailsView(generic.ListView):
+''
+class Search(TemplateView):
 
     # modelは取り扱うモデルクラス(モデル名と紐づけ)
-    model = Good
+    model = GoodsTBL
     # template_nameは利用するテンプレート名
     # (ListViewの場合、何も設定しないとhtml名の最後に[_list]が付く)
-    template_name = 'srhapp/details.html'
-
+    template_name = 'searchapp/search.html'
 
     def post(self, request, *args, **kwargs):
         """
@@ -69,6 +71,14 @@ class detailsView(generic.ListView):
         context['test_form'] = test_form
         return context
 
+
+class ResultList(generic.ListView):
+    # modelは取り扱うモデルクラス(モデル名と紐づけ)
+    model = GoodsTBL
+    # template_nameは利用するテンプレート名
+    # (ListViewの場合、何も設定しないとhtml名の最後に[_list]が付く)
+    template_name = 'searchapp/result.html'
+
     def get_queryset(self): # 呼び出された（オーバーライドされたメソッド）
         '''
         DBから検索条件に一致したデータを取得
@@ -97,7 +107,21 @@ class detailsView(generic.ListView):
                 condition_price = Q(price__contains = price)
 
             # 定義されたクエリを発行し、データをobject_listへ格納する。
-            return Good.objects.select_related().filter(condition_title & condition_category & condition_price)
+            return GoodsTBL.objects.select_related().filter(condition_title & condition_category & condition_price)
 
         else:
-            return Good.objects.none() # 何も返さない
+            return GoodsTBL.objects.none() # 何も返さない
+
+'''
+class DetailsView(TemplateView):
+    template_name = 'searchapp/details.html'
+
+    def display(request):
+        if request.POST:
+            pass
+
+    def details_list(request):
+        #posts = get_object_or_404(Post, pk=pk)
+        posts = pk
+        return render(request,'searchapp/details.html',{'posts':posts})
+'''
