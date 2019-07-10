@@ -5,8 +5,10 @@
 <!-- スクロールバー のスタイル-->
 <div style="height:500px; width:1080px; overflow-:auto;">
 <!-- スクロールバー テーブルの大きさ-->
-<table border=1 height="*" width="1080" bgcolor="#b0c4de"><tr><td>
+<table border=1 height="850" width="1080" bgcolor="#b0c4de"><tr><td>
 <div class="col-lg-6 offset-lg-3">
+<!-- 画面中央寄せ-->
+<p style="text-align: center">
     <h1>検索結果</h1>
     <!-- 検索結果の表示 -->
     <section class="post-list">
@@ -26,8 +28,8 @@
                 <!-- object_listの配列数分繰り返す -->
                 {% for post in object_list %}
                     <tr>
-                        <td width="50%">{{ post.title }}</td>
-                        <td width="30%">{{ post.category }}</td>
+                        <td width="50%">{{ post.goodsname }}</td>
+                        <td width="30%">{{ post.categoryname }}</td>
                         <td width="20%">{{ post.price }}</td>
                     </tr>
                 {% endfor %}
@@ -42,6 +44,7 @@
             {% include 'pagination.html' %}
         {% endif %}
     </div>
+    </p>
     </td></tr></table>
 </div>
 </div>
