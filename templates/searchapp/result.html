@@ -29,21 +29,17 @@
                 {% for post in object_list %}
                     <tr>
                         <td width="50%">{{ post.goodsname }}</td>
-                        <td width="30%">{{ post.categoryname }}</td>
+                        <td width="30%">{{ post.categoryid }}</td>
                         <td width="20%">{{ post.price }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
                 </thead>
             </table>
+            <input class="btn btn-success offset-md-8 col-md-3" type="submit" id="button" name="button" value="検索">
           </form>
         {% endif %}
     </section>
-    <div class="col-6 offset-3 justify-content-center">
-        {% if is_paginated %}
-            {% include 'pagination.html' %}
-        {% endif %}
-    </div>
     </p>
     </td></tr></table>
 </div>

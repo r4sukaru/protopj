@@ -141,9 +141,19 @@ STATIC_ROOT = '/var/www/{}/static' .format(PROJECT_NAME) # 静的ファイルの
 SESSION_COOKIE_AGE = 600 # 10分
 SESSION_SAVE_EVERY_REQUEST = True # 1リクエストごとにセッション情報更新
 
-'''
-SETTINGS_PATH = os.path.normpath(os.path.dirname(__file__))
-TEMPLATE_DIRS = (
-    os.path.join(SETTINGS_PATH, 'templates'),
-)
-'''
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        },
+    }
+}

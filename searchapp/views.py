@@ -109,27 +109,77 @@ from django.shortcuts import render, get_object_or_404
 class ResultList(generic.ListView):
     # modelは取り扱うモデルクラス(モデル名と紐づけ)
     model = GoodsTBL
+    #model = CategoryTBL
     # template_nameは利用するテンプレート名
     # (ListViewの場合、何も設定しないとhtml名の最後に[_list]が付く)
     template_name = 'searchapp/result.html'
 
-def index(request):
-    d = {
-        'result': GoodsTBL.objects.all(),
-        'result': CategoryTBL.objects.all(),
-    }
-    return render(request, 'searchapp/result.html', d)
+def get_context_data(self, **kwargs):
+        """
+         初期値に空白を設定したテンプレートを返すメソッド
+         ⇒最初にサイトを呼び出すときに必ず呼ばれる
+        """
+        # 親クラスのメソッド呼び出し、変数contextに格納
+        context = super().get_context_data(**kwargs)
 
-'''
-class DetailsView(TemplateView):
-    template_name = 'searchapp/details.html'
+        productno = ''
+        categoryidid = ''
+        highcategoryidid = ''
 
-    def display(request):
-        if request.POST:
-            pass
+        # 最初はセッションに値が無いからこのif節は呼ばれない
+        if 'form_value' in self.request.session:
+            form_value = self.request.session['form_value']
+            productno = form_value[0]
+            categoryid = form_value[1]
+            highcategoryidid = form_value[2]
 
-    def details_list(request):
-        #posts = get_object_or_404(Post, pk=pk)
-        posts = pk
-        return render(request,'searchapp/details.html',{'posts':posts})
-'''
+        # 辞書新規作成⇒初期値ではそれぞれ「空白」が設定
+        default_data = {'productno' :productno, 'categoryid' :categoryid, 'highcategoryidid' :highcategoryidid}
+
+        # 入力フォームに初期値では空白を設定する処理
+        test_form = GoodSearchForm(initial = default_data)
+
+        # 入力フォームに空白を指定したテンプレートを呼び出し、返却する処理
+        context['test_form'] = test_form
+        return context
+
+def get_queryset(self): # 呼び出された（オーバーライドされたメソッド）
+        '''
+        DBから検索条件に一致したデータを取得
+        '''
+        # セッションに値があるときに動作する
+        # ⇒最初にページに入ったときはセッションに値がないので、下のelse文が実行される
+        if 'form_value' in self.request.session:
+            form_value = self.request.session['form_value']
+            productno = form_value[0]
+            categoryid = form_value[1]
+            highcategoryidid = form_value[2]
+
+            #Qオブジェクトを各変数にインスタンス化
+            condition_productno = Q()
+            condition_categoryid = Q()
+            condition_highcategoryidid = Q()
+
+            # クエリを発行
+            # 入力フォームに値が入っているかの判定
+            # 変数の長さが1以上で、null値ではない場合、クエリを発行する。
+            if len(productno) != 0 and productno[0]:
+                condition_productno = Q(productno__contains = productno)
+            if len(categoryid) != 0 and categoryid[0]:
+                condition_categoryid = Q(categoryid__contains = categoryid)
+            if len(highcategoryidid) != 0 and highcategoryidid[0]:
+                condition_highcategoryidid = Q(highcategoryidid__contains = highcategoryidid)
+
+            # 定義されたクエリを発行し、データをobject_listへ格納する。
+            #return GoodsTBL.objects.select_related().filter(condition_productno & condition_categoryid & condition_highcategoryidid)
+            return GoodsTBL.objects.select_related().filter(condition_productno)
+
+#class Details_view(generic.ListView):
+    # modelは取り扱うモデルクラス(モデル名と紐づけ)
+    #model = GoodsTBL
+    # template_nameは利用するテンプレート名
+    #template_name = 'searchapp/details.html'
+
+    #def post_details(request, pk):
+        #post = get_object_or_404(Post, pk=pk)
+        #return render(request, 'searchapp/details.html', {'post': post})
