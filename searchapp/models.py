@@ -41,13 +41,13 @@ class GoodsTBL(models.Model):
     goodsdescription = models.CharField(
         verbose_name = '商品記述',
         max_length = 150,
-        #null=True,
+        null=True,
         blank=True,
     )
     goodsurl = models.URLField(
         verbose_name = '商品画像URL',
         max_length = 100,
-        #null=True,
+        null=True,
         blank=True,
     )
     price = models.IntegerField(
