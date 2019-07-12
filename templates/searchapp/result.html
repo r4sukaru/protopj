@@ -5,11 +5,12 @@
 <!-- スクロールバー のスタイル-->
 <div style="height:500px; width:1080px; overflow-:auto;">
 <!-- スクロールバー テーブルの大きさ-->
-<table border=1 height="850" width="1080" bgcolor="#b0c4de"><tr><td>
+<table border=1 height="1000" width="1080" bgcolor="#b0c4de"><tr><td>
 <div class="col-lg-6 offset-lg-3">
     <h1>検索結果</h1>
-<!-- 画面中央寄せ-->
-<p style="text-align: center">
+    <!-- 画面中央寄せ-->
+    <p class="dev">
+    <!--<p style="text-align: center">-->
     <!-- 検索結果の表示 -->
     <section class="post-list">
         <!-- object_list:クエリの発行結果を格納する -->
@@ -25,26 +26,27 @@
                     <th>価格(￥) ※税抜き</th>
                 </tr>
                 <tbody>
-                <!-- object_listの配列数分繰り返す -->
-                {% for post in object_list %}
-                    <tr>
-                        <td id="{{post.goodsid}}"width="50%">
-                        <form action="" method="post">
-                        {% csrf_token %}
-                        <a href=" url 'searchapp/details'">
-                        {{ post.goodsname }}
-                        </a>
-                        </td>
-                        </form>
-                        <td width="30%">
-                        {{ post.categoryid.categoryname }}
-                        </td>
+                    <!-- object_listの配列数分繰り返す -->
+                    {% for post in object_list %}
+                        <tr>
+                         <td id="{{post.goodsid}}"width="50%">
+                                <form action="" method="post">
+                              {% csrf_token %}
+                             <a href=" url 'searchapp/details'">
+                                   {{ post.goodsname }}
+                              </a>
+                          </td>
+                              </form>
 
-                        <td width="20%">
-                        {{ post.price }}
-                        </td>
-                    </tr>
-                {% endfor %}
+                          <td width="30%">
+                              {{ post.categoryid.categoryname }}
+                          </td>
+
+                          <td width="20%">
+                             {{ post.price }}
+                          </td>
+                     </tr>
+                 {% endfor %}
                 </tbody>
                 </thead>
             </table>
