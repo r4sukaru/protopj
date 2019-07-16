@@ -11,14 +11,13 @@ from django.shortcuts import render, get_object_or_404
 
 
 # Create your views here.
-''
-#class Search(generic.ListView):
+
+class Search(generic.ListView):
 
     # modelは取り扱うモデルクラス(モデル名と紐づけ)
-    #model = GoodsTBL
+    model = GoodsTBL
     # template_nameは利用するテンプレート名
-    # (ListViewの場合、何も設定しないとhtml名の最後に[_list]が付く)
-    #template_name = 'searchapp/search.html'
+    template_name = 'searchapp/search.html'
 
 
 class ResultList(generic.ListView):
@@ -33,11 +32,9 @@ class ResultList(generic.ListView):
         #テンプレート内のformタグで
             print (request.POST)
             if request.method == 'post':
-                form = 'yes'
-                #sizeform(request.post)
+                print('post')
             else:
                 form = 'no'
-                #form = sizeform()
 
             #return render(request,'searchapp/details.html',{'form': form})
             return self.get(request, *args, **kwargs)
@@ -47,20 +44,19 @@ class ResultList(generic.ListView):
             # 親クラスのメソッド呼び出し、変数contextに格納
             context = super().get_context_data(**kwargs)
 
-            goodsid = 'ZZYYXX001S003'
+            goodsid = '000000006L002'
             productno = goodsid[:9]
             deleteflag = 0 # 有効状態
 
-            '''
-            ■DB検索条件
-            製品番号 = 'ZZYYXX001'
-            論理削除フラグ = 0
-            販売開始年月日 ≦システム処理何月日＜販売終了年月日
-            '''
+            #■DB検索条件
+            #製品番号 = 'ZZYYXX001'
+            #論理削除フラグ = 0
+            #販売開始年月日 ≦システム処理何月日＜販売終了年月日
+
               # Qオブジェクトの初期設定(インスタンス化)
-            exact_goodsid = Q() # 商品IDのQオブジェクト(完全一致)
-            exact_productno = Q() # 製造番号のQオブジェクト(完全一致)
-            exact_deleteflag = Q() # 論理削除フラグのQオブジェクト(完全一致)
+            exact_goodsid = Q() # 商品IDのQオブジェクト(exact=完全一致）
+            exact_productno = Q() # 製造番号のQオブジェクト(exact=完全一致)
+            exact_deleteflag = Q() # 論理削除フラグのQオブジェクト(exact=完全一致)
 
             #インスタンス化した変数にQオブジェクト(検索条件)を記述
             exact_goodsid = Q(goodsid__exact = str(goodsid)) # 条件：商品ID='ZZYYXX001S003'
@@ -78,25 +74,25 @@ class ResultList(generic.ListView):
             return context
 
     def get_queryset(self): # 呼び出された（オーバーライドされたメソッド）
-            '''
-            詳細画面に表示する商品を検索する。
-            '''
-            goodsid = 'ZZYYXX001S003'
+
+            #詳細画面に表示する商品を検索する。
+
+            goodsid = '000000006L002'
             productno = goodsid[:9]
             deleteflag = 0 # 有効状態
-            '''
-            ■DB検索条件
-            製品番号 = 'ZZYYXX001'
-            論理削除フラグ = 0
-            販売開始年月日 ≦システム処理何月日＜販売終了年月日
-            '''
+
+            #■DB検索条件
+            #製品番号 = 'ZZYYXX001'
+            #論理削除フラグ = 0
+            #販売開始年月日 ≦システム処理何月日＜販売終了年月日
+
             #Qオブジェクトを各変数にインスタンス化
-            condition_goodsid = Q() #商品IDのQオブジェクト(含め)
-            exact_goodsid = Q() # 商品IDのQオブジェクト(完全一致)
-            exact_productno = Q() # 製造番号のQオブジェクト(完全一致)
-            condition_salesstartdate = Q() # 販売開始年月日のQオブジェクト(含め)
-            condition_salesenddate = Q() # 販売終了年月日のQオブジェクト(含め)
-            exact_deleteflag = Q() #論理削除フラグのQオブジェクト(完全一致)
+            condition_goodsid = Q() #商品IDのQオブジェクト(condition=含め)
+            exact_goodsid = Q() # 商品IDのQオブジェクト(exact=完全一致)
+            exact_productno = Q() # 製造番号のQオブジェクト(exact=完全一致)
+            condition_salesstartdate = Q() # 販売開始年月日のQオブジェクト(condition=含め)
+            condition_salesenddate = Q() # 販売終了年月日のQオブジェクト(condition=含め)
+            exact_deleteflag = Q() #論理削除フラグのQオブジェクト(exact=完全一致)
 
             # クエリを発行
             exact_goodsid = Q(goodsid__exact = str(goodsid)) # 条件：商品ID='AABBCC001S003'
@@ -108,9 +104,23 @@ class ResultList(generic.ListView):
             # 定義されたクエリを発行し、データをgoodsdetailsへ格納する。
             return shousai
 
-            #return redirect('post_detail', pk=post.pk)
+            #return redirect('DetailsList', pk=post.pk)
+'''
+    def index(request):
+        name = None
 
-class Details_view(generic.ListView):
+        if 'shousai' in request.POST :
+            # セッションにデータを保存する
+            request.session['shousai'] = request.POST['shousai']
+
+        # セッションにデータがあるか確認する
+        if 'shousai' in request.session and 'passwd' in request.session:
+            # セッションからデータを読み込む
+            shousai = request.session['shousai']
+
+            return render(request, "index.html", {'loggedIn':logged_in, 'shousai':shousai})
+'''
+class DetailsList(generic.ListView):
      #modelは取り扱うモデルクラス(モデル名と紐づけ)
      model = GoodsTBL
      #template_nameは利用するテンプレート名

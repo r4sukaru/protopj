@@ -1,0 +1,9 @@
+{% extends 'searchapp/base.html' %}
+<!-- テンプレートの継承先 -->
+<!-- オーバーライド対象：content=子テンプレートのブロック名 -->
+{% block content %}
+<!-- セキュリティ対策 -->
+{% csrf_token %}
+
+
+{% endblock %}
