@@ -5,5 +5,8 @@
 <!-- セキュリティ対策 -->
 {% csrf_token %}
 
+{% for post in posts %}
+    {{ post }}
+{% endfor %}
 
 {% endblock %}
