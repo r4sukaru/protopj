@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.shortcuts import redirect
 from django.views import generic
 from .forms import GoodSearchForm
 from django.db.models import Q
@@ -29,15 +30,10 @@ class ResultList(generic.ListView):
     template_name = 'searchapp/result.html'
 
     def post(self, request, *args, **kwargs):
-        #テンプレート内のformタグで
-        print (request.POST)
-        if request.method == 'post':
-            print('post')
-        else:
-            form = 'no'
+        print(request.POST.get('productno',None))
+        request.session['g_de_productno'] = request.POST.get('productno',None)
 
-            #return render(request,'searchapp/details.html',{'form': form})
-            return self.get(request, *args, **kwargs)
+        return redirect('searchapp:details')
 
     def get_context_data(self, **kwargs):
 
@@ -65,11 +61,11 @@ class ResultList(generic.ListView):
         exact_deleteflag = Q(deleteflag__exact = int(deleteflag))  # 条件：論理削除フラグ = 1
 
         # Qオブジェクトで定義した検索条件でクエリを発行する。
-        goodsdetail = GoodsTBL.objects.select_related().filter(exact_goodsid & exact_productno & exact_deleteflag)
+        goodsresult = GoodsTBL.objects.select_related().filter(exact_goodsid & exact_productno & exact_deleteflag)
         #pdfull = GoodsTBL.objects.select_related().filter(exact_productno)
 
         # contextにクエリ発行した結果を追加し、テンプレートタグで使用可能にする。
-        context['goods_form'] = goodsdetail
+        context['goods_form'] = goodsresult
 
         # 戻り値としてcontextを返す。
         return context
@@ -128,6 +124,7 @@ class DetailsList(generic.ListView):
     def post_details(request, pk):
         post = get_object_or_404(Post, pk=pk)
         return render(request, 'searchapp/details.html', {'post': post})
+
 
     def post(self, request, *args, **kwargs):
         #テンプレート内のformタグで
