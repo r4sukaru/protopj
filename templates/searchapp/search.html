@@ -16,7 +16,7 @@
                     <!-- field変数を表示 -->
                     {{ field }}
                 </div>
-               <!--  <h1><a href="{% url 'result' pk=post.pk %}">{{ post.title }}</a></h1> -->
+                <h1><a href="{% url 'result' %}">{{ post.title }}</a></h1>
             </div>
         {% endfor %}
         <input class="btn btn-success offset-md-8 col-md-3" type="submit" id="button" name="button" value="検索">

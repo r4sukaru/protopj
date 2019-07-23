@@ -58,13 +58,14 @@ class ResultList(generic.ListView):
         exact_productno = Q() # 製造番号のQオブジェクト(exact=完全一致)
         exact_deleteflag = Q() # 論理削除フラグのQオブジェクト(exact=完全一致)
 
+
         #インスタンス化した変数にQオブジェクト(検索条件)を記述
         exact_goodsid = Q(goodsid__exact = str(goodsid)) # 条件：商品ID='ZZYYXX001S003'
         exact_productno = Q(productno__exact = str(productno)) # 条件：製造番号='ZZYYXX001'
         exact_deleteflag = Q(deleteflag__exact = int(deleteflag))  # 条件：論理削除フラグ = 1
 
         # Qオブジェクトで定義した検索条件でクエリを発行する。
-        goodsdetail = GoodsTBL.objects.select_related().filter(exact_goodsid & exact_productno)
+        goodsdetail = GoodsTBL.objects.select_related().filter(exact_goodsid & exact_productno & exact_deleteflag)
         #pdfull = GoodsTBL.objects.select_related().filter(exact_productno)
 
         # contextにクエリ発行した結果を追加し、テンプレートタグで使用可能にする。
@@ -101,31 +102,22 @@ class ResultList(generic.ListView):
         exact_deleteflag = Q(deleteflag__exact = deleteflag) # 条件：論理削除フラグ = 1
 
         shousai = GoodsTBL.objects.select_related().filter(exact_goodsid & exact_productno & exact_deleteflag)
-        #shousai = GoodsTBL.objects.select_related().filter(exact_goodsid & exact_productno & exact_deleteflag).values('exact_goodsid', 'exact_productno')
-        #print('shousai = ' + str(shousai))
-        #print('shousai = ' + shousai.get('goodsid'))
-        #print('shousai = ' + shousai.get('productno'))
+        #print('shousai = ' +str(shousai))
 
-        #self.request.session['shousai'] = shousai
+        for data in shousai:
+            #print('shousai = ' +(data.productno))
+            self.request.session['seino'] = data.productno
+            break
+
+        #aa = self.request.session['seino']
+        #print(aa)
+
         # 定義されたクエリを発行し、データをgoodsdetailsへ格納する。
         return shousai
 
-        #return redirect('DetailsList', pk=post.pk)
-        #pront(redirect('searchapp/details.htm'))
-        #return redirect('searchapp/details.htm')
-'''
-    def index(request):
-            # セッションにデータを保存する
-        request.session['shousai'] = request.POST['shousai']
-        # セッションにデータがあるか確認する
-        if 'shousai' in request.session :
-            # セッションからデータを読み込む
-            shousai = request.session['shousai']
+    #def redirectview(request):
 
-        pront(redirect('searchapp/details.htm'))
-        #return redirect('searchapp/details.htm')
-        #return render(request, "searchapp/details.html", {'shousai':shousai})
-'''
+        #return redirect('details')
 
 class DetailsList(generic.ListView):
     #modelは取り扱うモデルクラス(モデル名と紐づけ)
@@ -147,3 +139,8 @@ class DetailsList(generic.ListView):
 
             #return render(request,'searchapp/details.html',{'form': form})
             return self.get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+
+            # 親クラスのメソッド呼び出し、変数contextに格納
+        context = super().get_context_data(**kwargs)
