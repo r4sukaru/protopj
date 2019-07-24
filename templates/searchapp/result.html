@@ -13,8 +13,8 @@
     <!--<p style="text-align: center">-->
     <!-- 検索結果の表示 -->
     <section class="post-list">
-        <!-- object_list:クエリの発行結果を格納する -->
-        {% if object_list|length == 0 %}
+        <!-- result_list:クエリの発行結果を格納する -->
+        {% if result_list|length == 0 %}
             <p>検索結果が存在しません。</p>
         {% else %}
           <!--<form method="POST">-->
@@ -26,18 +26,18 @@
                     <th>価格(￥) ※税抜き</th>
                 </tr>
                 <tbody>
-                    <!-- object_listの配列数分繰り返す -->
-                    {% for post in object_list %}
+                    <!-- result_listの配列数分繰り返す -->
+                    {% for post in result_list %}
                         <tr>
                          <td id="{{post.goodsid}}"width="50%">
                             <!-- <form action="" method="post">-->
                             <!-- <a href="{% url 'searchapp:details' %}">-->
-                            <a href="" onclick="document.form1.submit();return false;">
+                            <a href="" onclick="document.form1.submit();return false;"">
                                    {{ post.goodsname }}
                             </a>
-                              <form name="form1" method="POST" action="">
+                              <form name="form1" method="post" action="">
                                 {% csrf_token %}
-                                <input type=hidden name="productno" value="000000006">
+                                <input type=hidden name="productno" value="{{ post.productno }}">
                               </form>
                           </td>
 

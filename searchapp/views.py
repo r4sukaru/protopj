@@ -36,84 +36,87 @@ class ResultList(generic.ListView):
         return redirect('searchapp:details')
 
     def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+        # template_nameは利用するテンプレート名
+        #template_name = 'searchapp/result.html'
 
-            # 親クラスのメソッド呼び出し、変数contextに格納
-        context = super().get_context_data(**kwargs)
+           #②-3(taguchi)
+         #セッションの中にユーザの入力値が入っているかどうかの判定
+         #↑（検索押した後に動いているので基本的にはなにかしら入ってる：Nullではない）
+         #入っている場合は変数form_valueの中に②-2でユーザ入力値を格納したセッションを格納する
+         #変数category_nameとsearch_charにユーザの入力値を格納する
+         #↑（リストform_valueの番号を指定）
+            '''
+        if 'form_value' in self.request.session:
+            form_value = self.request.session['form_value']
+            category_name=form_value[0]
+            search_char=form_value[1]
+            #print(self.request.session['form_value'])
+            '''
+            #前画面フォームの代わりに全件検索用（カテゴリ、フォーム値なしの場合）
+            form_value = ['','']
+            category_name=form_value[0]
+            search_char=form_value[1]
 
-        goodsid = '000000006L002'
-        productno = goodsid[:9]
-        deleteflag = 0 # 有効状態
+            #②-4(taguchi)
+            #Qオブジェクトを作成。
+            q_cate=Q(categoryid__exact=category_name)
+            q_name=Q(goodsname__contains=search_char)
+            q_color=Q(colorname__contains=search_char)
+            q_price=Q(price__contains=search_char)
+            q_size=Q(sizename__contains=search_char)
+            q_ronsaku=Q(deleteflag__exact=0)
 
-        #■DB検索条件
-        #製品番号 = 'ZZYYXX001'
-        #論理削除フラグ = 0
-        #販売開始年月日 ≦システム処理何月日＜販売終了年月日
+            #②-5(taguchi)
+            #入力値（カテゴリプルダウンと入力フォーム）が空白どうかの条件分岐if文
+            #分岐先で指定のクエリセットを発行し、変数goods_search_resultの中に格納する
+            if (
+                form_value[0:1]==['']
+                ):
+                if (
+                    form_value[1:2]==['']):
+                    #カテゴリ×文字×
+                    goods_search_result =GoodsTBL.objects. \
+                    filter(q_ronsaku).order_by('-salesstartdate')
+                else:
+                    #カテゴリ×文字〇
+                    goods_search_result = \
+                    GoodsTBL.objects.select_related()\
+                    .filter(q_name | q_color | q_price | q_size)\
+                    .order_by('-salesstartdate')
+            else:
+                if form_value[1:2]==['']:
+                    #カテゴリ〇文字×
+                    goods_search_result = \
+                    GoodsTBL.objects.select_related()\
+                    .filter(q_cate,q_ronsaku)\
+                    .order_by('-salesstartdate')
+                else:
+                    #カテゴリ〇文字〇
+                    goods_search_result = \
+                    GoodsTBL.objects.select_related()\
+                    .filter( q_cate, ( q_name | q_color | q_price | q_size))\
+                    .order_by('-salesstartdate')
+                    #print(goods_search_result)
 
-        # Qオブジェクトの初期設定(インスタンス化)
-        exact_goodsid = Q() # 商品IDのQオブジェクト(exact=完全一致）
-        exact_productno = Q() # 製造番号のQオブジェクト(exact=完全一致)
-        exact_deleteflag = Q() # 論理削除フラグのQオブジェクト(exact=完全一致)
+            #②-6(taguchi)
+            #②-5で作成された検索結果goods_search_resultを
+            #for文で回し、製品番号が表示用リストに格納されている
+            #製品番号と被っていなければ、表示用リストにクエリオブジェクトを追加する処理
 
+            result_list=[]
+            for k in goods_search_result:
+                productno_list=[d.productno for d in result_list]
+                b=k.productno
+                #print(k.categoryid.categoryname)
+                if b in productno_list:
+                    pass
+                else:
+                    result_list.append(k)
 
-        #インスタンス化した変数にQオブジェクト(検索条件)を記述
-        exact_goodsid = Q(goodsid__exact = str(goodsid)) # 条件：商品ID='ZZYYXX001S003'
-        exact_productno = Q(productno__exact = str(productno)) # 条件：製造番号='ZZYYXX001'
-        exact_deleteflag = Q(deleteflag__exact = int(deleteflag))  # 条件：論理削除フラグ = 1
+            context['result_list'] = result_list
+            return context
 
-        # Qオブジェクトで定義した検索条件でクエリを発行する。
-        goodsresult = GoodsTBL.objects.select_related().filter(exact_goodsid & exact_productno & exact_deleteflag)
-        #pdfull = GoodsTBL.objects.select_related().filter(exact_productno)
-
-        # contextにクエリ発行した結果を追加し、テンプレートタグで使用可能にする。
-        context['goods_form'] = goodsresult
-
-        # 戻り値としてcontextを返す。
-        return context
-
-    def get_queryset(self): # 呼び出された（オーバーライドされたメソッド）
-
-            #詳細画面に表示する商品を検索する。
-
-        goodsid = '000000006L002'
-        productno = goodsid[:9]
-        deleteflag = 0 # 有効状態
-
-        #■DB検索条件
-        #製品番号 = 'ZZYYXX001'
-        #論理削除フラグ = 0
-        #販売開始年月日 ≦システム処理何月日＜販売終了年月日
-
-        #Qオブジェクトを各変数にインスタンス化
-        condition_goodsid = Q() #商品IDのQオブジェクト(condition=含め)
-        exact_goodsid = Q() # 商品IDのQオブジェクト(exact=完全一致)
-        exact_productno = Q() # 製造番号のQオブジェクト(exact=完全一致)
-        condition_salesstartdate = Q() # 販売開始年月日のQオブジェクト(condition=含め)
-        condition_salesenddate = Q() # 販売終了年月日のQオブジェクト(condition=含め)
-        exact_deleteflag = Q() #論理削除フラグのQオブジェクト(exact=完全一致)
-
-        # クエリを発行
-        exact_goodsid = Q(goodsid__exact = str(goodsid)) # 条件：商品ID='AABBCC001S003'
-        condition_goodsid = Q(goodsid__contains = str(productno)) # 条件：商品IDに'AABBCC001'が含まれている
-        exact_productno = Q(productno__exact = str(productno)) # 条件：製造番号='AABBCC001'
-        exact_deleteflag = Q(deleteflag__exact = deleteflag) # 条件：論理削除フラグ = 1
-
-        shousai = GoodsTBL.objects.select_related().filter(exact_goodsid & exact_productno & exact_deleteflag)
-        #print('shousai = ' +str(shousai))
-
-        for data in shousai:
-            #print('shousai = ' +(data.productno))
-            self.request.session['seino'] = data.productno
-            break
-
-        #aa = self.request.session['seino']
-        #print(aa)
-
-        # 定義されたクエリを発行し、データをgoodsdetailsへ格納する。
-        return shousai
-
-    #def redirectview(request):
-
-        #return redirect('details')
 
 class DetailsList(generic.ListView):
     #modelは取り扱うモデルクラス(モデル名と紐づけ)
