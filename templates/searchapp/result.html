@@ -2,22 +2,20 @@
 <!-- オーバーライド対象：content=子テンプレートのブロック名 -->
 <!-- テンプレートの継承先 -->
 {% block content %}
+{% load humanize %}
 <!-- スクロールバー のスタイル-->
 <div style="height:500px; width:1080px; overflow-:auto;">
 <!-- スクロールバー テーブルの大きさ-->
-<table border=1 height="1000" width="1080" bgcolor="#b0c4de"><tr><td>
+<table border=1 height="1000" width="1080" bgcolor="#d7ffff"><tr><td>
 <div class="col-lg-6 offset-lg-3">
     <h1>検索結果</h1>
-    <!-- 画面中央寄せ-->
     <p class="dev">
-    <!--<p style="text-align: center">-->
     <!-- 検索結果の表示 -->
     <section class="post-list">
         <!-- result_list:クエリの発行結果を格納する -->
         {% if result_list|length == 0 %}
             <p>検索結果が存在しません。</p>
         {% else %}
-          <!--<form method="POST">-->
             <table class="table table-hover table-bordered">
             <thead class="thead-dark">
                 <tr>
@@ -29,35 +27,32 @@
                     <!-- result_listの配列数分繰り返す -->
                     {% for post in result_list %}
                         <tr>
+                        <!-- 商品を表示 -->
                          <td id="{{post.goodsid}}"width="50%">
-                            <!-- <form action="" method="post">-->
-                            <!-- <a href="{% url 'searchapp:details' %}">-->
-                            <a href="" onclick="document.form1.submit();return false;"">
-                                   {{ post.goodsname }}
-                            </a>
-                              <form name="form1" method="post" action="">
+                            <form name="form1{{ post.productno }}" method="post" action="">
                                 {% csrf_token %}
                                 <input type=hidden name="productno" value="{{ post.productno }}">
-                              </form>
+                                <a href="" onclick="document.form1{{ post.productno }}.submit();return false;"">
+                                   {{ post.goodsname }}
+                                </a>
+                            </form>
                           </td>
-
+                            <!-- カテゴリを表示 -->
                           <td width="30%">
                               {{ post.categoryid.categoryname }}
                           </td>
-
+                            <!-- 価格を表示 -->
                           <td width="20%">
-                             {{ post.price }}
+                             {{ post.price| intcomma }}
                           </td>
                      </tr>
                  {% endfor %}
                 </tbody>
-                </thead>
             </table>
-          </form>
         {% endif %}
     </section>
     </p>
     </td></tr></table>
-</div>
+    </div>
 </div>
 {% endblock %}

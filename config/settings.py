@@ -35,8 +35,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'searchapp.apps.SearchappConfig', #アプリ紐付け
-    'bootstrap4' #bootstrap4紐付け
+    'bootstrap4', #bootstrap4紐付け
+    'django.contrib.humanize', #金額数値
 ]
+
+NUMBER_GROUPING = 3 #金額数値3桁指定
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
