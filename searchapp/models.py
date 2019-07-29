@@ -92,7 +92,7 @@ class GoodsTBL(models.Model):
 
     # 管理サイトに表示させる文字列を定義
     def __str__(self):
-        return self.goodsname
+        return '[' + self.goodsid + ']' +self.goodsname
 
 
 class CategoryTBL(models.Model):
@@ -109,7 +109,7 @@ class CategoryTBL(models.Model):
     categoryid = models.CharField(
         verbose_name='カテゴリID',
         primary_key=True,
-        max_length=12,
+        max_length=13,
     )
     highcategoryid = models.ForeignKey(
         'HighCategoryTBL',
@@ -142,7 +142,7 @@ class HighCategoryTBL(models.Model):
     highcategoryid = models.CharField(
         verbose_name='上位カテゴリID',
         primary_key=True,
-        max_length=12,
+        max_length=10,
     )
     highcategoryname = models.CharField(
         verbose_name='上位カテゴリ名',

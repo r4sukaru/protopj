@@ -2,7 +2,6 @@
 from django.shortcuts import redirect
 from django.views import generic
 from django.db.models import Q
-from _operator import add
 from .models import GoodsTBL
 
 
@@ -18,7 +17,6 @@ class ResultList(generic.ListView):
     """検索結果一覧画面のクラス"""
     # modelは取り扱うモデルクラス(モデル名と紐づけ)
     model = GoodsTBL
-
     # template_nameは利用するテンプレート名
     template_name = 'searchapp/result.html'
 
@@ -38,7 +36,7 @@ class ResultList(generic.ListView):
         # redirect関数でdetailsクラスを呼び出す
         return redirect('searchapp:details')
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
 
         # 1-1
@@ -53,9 +51,7 @@ class ResultList(generic.ListView):
             search_char=form_value[1]
         '''
         # 前画面フォームの代わりの索用の処理（カテゴリ、フォーム値なしの場合）
-        form_value = ['02', '']
-        print(form_value[0])
-        print(form_value[1])
+        form_value = ['', '']
         #print(form_value[2])
         # 変数category_nameとsearch_charにユーザの入力値を格納する
         category_name = form_value[0]
@@ -86,7 +82,9 @@ class ResultList(generic.ListView):
         else:
             if form_value[1] == '':
                 # カテゴリ〇文字×の時
-                goods_search_result =GoodsTBL.objects.select_related().filter(q_cate, q_ronsaku).order_by('-salesstartdate')
+                goods_search_result = GoodsTBL.objects.select_related()\
+                .filter(q_cate, q_ronsaku)\
+                .order_by('-salesstartdate')
             else:
                 # カテゴリ〇文字〇の時
                 print('C')
@@ -99,7 +97,6 @@ class ResultList(generic.ListView):
             # 1-3で作成された検索結果goods_search_resultをfor文で回し、
             # 製品番号が表示用リストに格納されている。
             # 製品番号と被っていなければ、表示用リストにクエリオブジェクトを追加する処理
-
         result_list = []
         for loop in goods_search_result:
             productno_list = [d.productno for d in result_list]
@@ -126,10 +123,4 @@ class DetailsList(generic.ListView):
         if request.method == 'post':
             print('post')
 
-        # return render(request,'searchapp/details.html',{'form': form})
         return self.get(request, *args, **kwargs)
-
-    # def get_context_data(self, **kwargs):
-
-        # 親クラスのメソッド呼び出し、変数contextに格納
-        # context = super().get_context_data(**kwargs)

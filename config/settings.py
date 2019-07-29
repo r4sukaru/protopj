@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'bootstrap4',
     # 金額数値
     'django.contrib.humanize',
+    # django-nose紐づけ
+    'django_nose',
 ]
 
 # 金額数値3桁指定
@@ -169,19 +171,15 @@ SESSION_COOKIE_AGE = 600
 # 1リクエストごとにセッション情報更新
 SESSION_SAVE_EVERY_REQUEST = True
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-        }
-    },
-    'loggers': {
-        'django.db.backends': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-        },
-    }
-}
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    # coveregeをとる
+    '--with-coverage',
+    # coverage を html で cover/ に出力する
+    '--cover-html',
+    # searchappを coverage を取得する対象アプリ名に書き換える
+    '--cover-package=searchapp',
+    # '--nocapture',
+    # '--nologcapture',
+]
