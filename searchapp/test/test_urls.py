@@ -40,9 +40,10 @@ class UrlResolveTests(TestCase):
         self.assertEqual(found.func.__name__, ResultList.__name__,'呼び出しているVIEWが想定と異なる')
 
     def test_url_resolves_DetailsList(self):
-        """/XXX/XXX/XXX/で、クラスDetailsListを呼び出している事を検証"""
-        found = resolve('details/')
-        self.assertEqual(found.func.__name__,  DetailsList.__name__)
+        """details/で、クラスDetailsListを呼び出している事を検証"""
+        found = resolve('/details/')
+        test = DetailsList.__name__
+        self.assertEqual(found.func.__name__,  DetailsList.__name__,'呼び出しているVIEWが想定と異なる')
 
     #def test_url_resolves_to_book_add_view(self):
     #    """/XXX/XXX/XXX/で、クラスIndexViewを呼び出している事を検証"""
