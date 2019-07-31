@@ -3,7 +3,7 @@ from django.test.utils import override_settings
 from django.urls import resolve
 from django.urls import path
 
-
+#from searchapp.views import Search
 from searchapp.views import ResultList
 from searchapp.views import DetailsList
 
@@ -32,6 +32,12 @@ class UrlResolveTests(TestCase):
     """
 
     @override_settings(DEBUG=True) #テスト実行時にデバッグ=Trueで実行
+
+    #def test_url_resolves_Search(self):
+        #"""''(指定なし)で、クラスResultListを呼び出している事を検証 """
+        #found = resolve('/')
+        #test = Search.__name__
+        #self.assertEqual(found.func.__name__, Search.__name__,'呼び出しているVIEWが想定と異なる')
 
     def test_url_resolves_ResultList(self):
         """''(指定なし)で、クラスResultListを呼び出している事を検証 """

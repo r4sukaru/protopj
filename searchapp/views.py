@@ -21,7 +21,7 @@ class ResultList(generic.ListView):
     template_name = 'searchapp/result.html'
 
     def post(self, request, *args, **kwargs):
-        """製品番号をセッションに入れ次のviewへ"""
+        """次画面に必要な情報（製品番号）をセッションに格納してリダイレクトする"""
         # print(request.POST.get('productno',None))
         # 1-5(result.htmlから)
         # sessionへ製品番号を保存
@@ -38,24 +38,23 @@ class ResultList(generic.ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        '''
+         条件に合った商品一覧を表示し次クラスへ返すメソッド
+         ⇒最初にサイトを呼び出すときに必ず呼ばれる
+        '''
         # 1-1
         # セッションの中にユーザの入力値が入っているかどうかの判定
         # ↑（検索押した後に動いているので基本的にはなにかしら入ってる：Nullではない）
         # 入っている場合は変数form_valueの中に前画面でユーザ入力値を格納したセッションを格納する
-        '''
+
         if 'form_value' in self.request.session:
             form_value = self.request.session['form_value']
+        else:
+            form_value = ['', '']
+
             #変数category_nameとsearch_charにユーザの入力値を格納する
             category_name=form_value[0]
             search_char=form_value[1]
-        '''
-        # 前画面フォームの代わりの索用の処理（カテゴリ、フォーム値なしの場合）
-        form_value = ['', '']
-        #print(form_value[2])
-        # 変数category_nameとsearch_charにユーザの入力値を格納する
-        category_name = form_value[0]
-        search_char = form_value[1]
 
         # 1-2
         # Qオブジェクトを作成。
@@ -87,7 +86,6 @@ class ResultList(generic.ListView):
                 .order_by('-salesstartdate')
             else:
                 # カテゴリ〇文字〇の時
-                print('C')
                 goods_search_result = \
                     GoodsTBL.objects.select_related()\
                     .filter(q_cate, (q_name | q_color | q_price | q_size))\
