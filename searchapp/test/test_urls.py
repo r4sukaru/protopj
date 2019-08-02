@@ -3,9 +3,7 @@ from django.test.utils import override_settings
 from django.urls import resolve
 from django.urls import path
 
-#from searchapp.views import Search
 from searchapp.views import ResultList
-from searchapp.views import DetailsList
 
 """
 UnitTestの書き方
@@ -33,26 +31,8 @@ class UrlResolveTests(TestCase):
 
     @override_settings(DEBUG=True) #テスト実行時にデバッグ=Trueで実行
 
-    #def test_url_resolves_Search(self):
-        #"""''(指定なし)で、クラスResultListを呼び出している事を検証 """
-        #found = resolve('/')
-        #test = Search.__name__
-        #self.assertEqual(found.func.__name__, Search.__name__,'呼び出しているVIEWが想定と異なる')
-
     def test_url_resolves_ResultList(self):
         """''(指定なし)で、クラスResultListを呼び出している事を検証 """
-        found = resolve('/')
+        found = resolve('result/')
         test = ResultList.__name__
         self.assertEqual(found.func.__name__, ResultList.__name__,'呼び出しているVIEWが想定と異なる')
-
-    def test_url_resolves_DetailsList(self):
-        """details/で、クラスDetailsListを呼び出している事を検証"""
-        found = resolve('/details/')
-        test = DetailsList.__name__
-        self.assertEqual(found.func.__name__,  DetailsList.__name__,'呼び出しているVIEWが想定と異なる')
-
-    #def test_url_resolves_to_book_add_view(self):
-    #    """/XXX/XXX/XXX/で、クラスIndexViewを呼び出している事を検証"""
-    #    found = resolve('/XXX/XXX/XXX/')
-    #    self.assertEqual(found.func.__name__,  IndexView.__name__)
-    #"""
