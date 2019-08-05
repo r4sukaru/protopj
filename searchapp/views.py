@@ -5,10 +5,14 @@ from django.db.models import Q
 from .forms import CategorySearchForm
 from .forms import GoodsSearchForm
 from .models import GoodsTBL
+from datetime import datetime
 
 
 class Search(generic.ListView):
-    """検索画面のクラス"""
+    """
+    検索画面のクラス
+    ※結合するタイミングで削除するクラス
+    """
 
     # modelは取り扱うモデルクラス(モデル名と紐づけ)
     model = GoodsTBL
@@ -90,14 +94,15 @@ class ResultList(generic.ListView):
     template_name = 'searchapp/result.html'
 
     def post(self, request, *args, **kwargs):
-        """次画面に必要な情報（製品番号）をセッションに格納してリダイレクトする"""
+        """
+        次画面に必要な情報（製品番号）をセッションに格納してリダイレクトする
+        """
         # 1-5(result.htmlから)
         # sessionへ製品番号を保存
         request.session['g_de_productno'] = request.POST.get('productno', None)
-        print(request.session['g_de_productno'])
         # 1-6
         # セッションからサイズと色を削除
-        request.session['size'] = ""
+        # 次画面でのブラウザバック使用時の為の設定
         if 'size' in request.session:
             del request.session['size']
         if 'color' in request.session:
@@ -109,8 +114,7 @@ class ResultList(generic.ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         '''
-         条件に合った商品一覧を表示し次クラスへ返すメソッド
-         ⇒最初にサイトを呼び出すときに必ず呼ばれる
+         条件に合った商品を一覧で表示するメソッド
         '''
         # 1-1
         # セッションの中にユーザの入力値が入っているかどうかの判定
@@ -128,41 +132,57 @@ class ResultList(generic.ListView):
 
         # 1-2
         # Qオブジェクトを作成。
-        q_cate = Q(categoryid__exact=category_id)
-        q_name = Q(goodsname__contains=search_char)
-        q_color = Q(colorname__contains=search_char)
-        q_price = Q(price__contains=search_char)
-        q_size = Q(sizename__contains=search_char)
-        q_ronsaku = Q(deleteflag__exact=0)
+        # exact=完全一致、contains=含む
+        exact_cate = Q(categoryid__exact=category_id)
+        contains_name = Q(goodsname__contains=search_char)
+        contains_color = Q(colorname__contains=search_char)
+        contains_price = Q(price__contains=search_char)
+        contains_size = Q(sizename__contains=search_char)
+        exact_ronsaku = Q(deleteflag__exact=0)
+        lte_salesstartdate = Q(salesstartdate__lte=datetime.now().date())
+        gt_salesenddate = Q(salesenddate__gt=datetime.now().date())
+        exact_salesenddate = Q(salesenddate__exact=None)
         # 1-3
         # 入力値（カテゴリプルダウンと入力フォーム）が空白どうかの条件分岐if文
         # 分岐先で指定のクエリセットを発行し、変数goods_search_resultの中に格納する
         if form_value[0] == '':
             if form_value[1] == '':
-                # カテゴリ×文字×の時
-                goods_search_result = GoodsTBL.objects.filter(q_ronsaku)\
+                # カテゴリ×文字×
+                # (全ての商品データ)
+                goods_search_result = GoodsTBL.objects\
+                .filter(exact_ronsaku& lte_salesstartdate\
+                & (gt_salesenddate | exact_salesenddate))\
                 .order_by('-salesstartdate')
             else:
                 # カテゴリ×文字〇の時
+                # (入力文字を値に含む商品データ)
                 goods_search_result = GoodsTBL.objects.select_related()\
-                .filter(q_name | q_color | q_price | q_size)\
+                .filter(exact_ronsaku\
+                & (contains_name | contains_color | contains_price | contains_size)\
+                & lte_salesstartdate& (gt_salesenddate | exact_salesenddate))\
                 .order_by('-salesstartdate')
         else:
             if form_value[1] == '':
                 # カテゴリ〇文字×の時
+                # (選択したカテゴリと同じカテゴリに設定した商品データ)
                 goods_search_result = GoodsTBL.objects.select_related()\
-                .filter(q_cate, q_ronsaku)\
+                .filter(exact_cate, exact_ronsaku & lte_salesstartdate\
+                & (gt_salesenddate | exact_salesenddate))\
                 .order_by('-salesstartdate')
             else:
                 # カテゴリ〇文字〇の時
+                # (選択したカテゴリと同じカテゴリに設定した商品データのなかで、
+                # かつ入力した文字を含む商品データ)
                 goods_search_result = GoodsTBL.objects.select_related()\
-                .filter(q_cate & (q_name | q_color | q_price | q_size))\
+                .filter(exact_cate, exact_ronsaku\
+                & (contains_name | contains_color | contains_price | contains_size)\
+                & lte_salesstartdate & (gt_salesenddate | exact_salesenddate))\
                 .order_by('-salesstartdate')
 
             # 1-4
             # 1-3で作成された検索結果goods_search_resultをfor文で回し、
-            # 製品番号が表示用リストに格納されている。
-            # 製品番号と被っていなければ、表示用リストにクエリオブジェクトを追加する処理
+            # 製品番号が表示用リスト(result_list)に格納されている。
+            # 製品番号と被っていなければ、表示用リスト(result_list)にクエリオブジェクトを追加する処理
         result_list = []
         for loop in goods_search_result:
             productno_list = [d.productno for d in result_list]
@@ -176,7 +196,10 @@ class ResultList(generic.ListView):
 
 
 class DetailsList(generic.ListView):
-    """詳細画面のクラス"""
+    """
+    詳細画面のクラス
+    ※結合するタイミングで削除するクラス
+    """
     # modelは取り扱うモデルクラス(モデル名と紐づけ)
     model = GoodsTBL
     # template_nameは利用するテンプレート名

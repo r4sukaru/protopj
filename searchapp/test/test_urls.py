@@ -32,7 +32,7 @@ class UrlResolveTests(TestCase):
     @override_settings(DEBUG=True) #テスト実行時にデバッグ=Trueで実行
 
     def test_url_resolves_ResultList(self):
-        """''(指定なし)で、クラスResultListを呼び出している事を検証 """
+        """''result/を指定して、クラスResultListを呼び出している事を検証 """
         found = resolve('result/')
         test = ResultList.__name__
         self.assertEqual(found.func.__name__, ResultList.__name__,'呼び出しているVIEWが想定と異なる')

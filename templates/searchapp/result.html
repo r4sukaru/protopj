@@ -1,10 +1,10 @@
+<!-- テンプレートの継承先 -->
 {% extends 'searchapp/base.html' %}
 <!-- オーバーライド対象：content=子テンプレートのブロック名 -->
-<!-- テンプレートの継承先 -->
 {% block content %}
+<!-- humanizeの呼び出し -->
 {% load humanize %}
 <div class="dev">
-    <!-- <h1>検索結果</h1> -->
     <p class="dev">
     <!-- 検索結果の表示 -->
     <section class="post-list">
@@ -15,16 +15,16 @@
             <table class="table table-hover table-bordered bg-white">
             <thead class="thead-dark">
                 <tr>
-                    <th>商品名</th>
-                    <th>カテゴリー</th>
-                    <th>価格(￥) ※税抜き</th>
+                    <th >商品名</th>
+                    <th>カテゴリ</th>
+                    <th>価格（￥）<br>※税抜き</th>
                 </tr>
                 <tbody>
                     <!-- result_listの配列数分繰り返す -->
                     {% for post in result_list %}
                         <tr>
                         <!-- 商品を表示 -->
-                         <td id="{{post.goodsid}}"width="50%">
+                         <td id="{{post.goodsid}}"width="55%">
                             <form name="form1{{ post.productno }}" method="post" action="">
                                 {% csrf_token %}
                                 <input type=hidden name="productno" value="{{ post.productno }}">
@@ -40,18 +40,10 @@
                               {{ post.categoryid.categoryname }}
                           </td>
                             <!-- 価格を表示 -->
-                          <td width="20%">
+                          <td width="15%">
                           <p style="text-align: right">
                              {{ post.price| intcomma }}
                           </td>
-                          <td width="50%">
-                          <form name="form2{{ post.productno }}" method="post" action="">
-                                {% csrf_token %}
-                                <input type=hidden name="test" value="{{ post.productno }}">
-                                <a href="" onclick="document.form2{{ post.productno }}.submit();return false;"">
-                                    <font color="#000000">
-                                        {{ post.goodsname }}
-                                    </font>
                                 </a>
                             </form>
                             </td>
