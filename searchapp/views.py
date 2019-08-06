@@ -132,7 +132,8 @@ class ResultList(generic.ListView):
 
         # 1-2
         # Qオブジェクトを作成。
-        # exact=完全一致、contains=含む
+        # exact=完全一致、contains=含む、
+        # lte=等しいか、より少ない値に一致、gt=より大きい値に一致
         exact_cate = Q(categoryid__exact=category_id)
         contains_name = Q(goodsname__contains=search_char)
         contains_color = Q(colorname__contains=search_char)
@@ -148,14 +149,14 @@ class ResultList(generic.ListView):
         if form_value[0] == '':
             if form_value[1] == '':
                 # カテゴリ×文字×
-                # (全ての商品データ)
+                # (全ての商品データを取得)
                 goods_search_result = GoodsTBL.objects\
                 .filter(exact_ronsaku& lte_salesstartdate\
                 & (gt_salesenddate | exact_salesenddate))\
                 .order_by('-salesstartdate')
             else:
                 # カテゴリ×文字〇の時
-                # (入力文字を値に含む商品データ)
+                # (入力文字を値に含む商品データを取得)
                 goods_search_result = GoodsTBL.objects.select_related()\
                 .filter(exact_ronsaku\
                 & (contains_name | contains_color | contains_price | contains_size)\
@@ -164,7 +165,7 @@ class ResultList(generic.ListView):
         else:
             if form_value[1] == '':
                 # カテゴリ〇文字×の時
-                # (選択したカテゴリと同じカテゴリに設定した商品データ)
+                # (選択したカテゴリと同じカテゴリに設定した商品データを取得)
                 goods_search_result = GoodsTBL.objects.select_related()\
                 .filter(exact_cate, exact_ronsaku & lte_salesstartdate\
                 & (gt_salesenddate | exact_salesenddate))\
@@ -172,7 +173,7 @@ class ResultList(generic.ListView):
             else:
                 # カテゴリ〇文字〇の時
                 # (選択したカテゴリと同じカテゴリに設定した商品データのなかで、
-                # かつ入力した文字を含む商品データ)
+                # かつ入力した文字を含む商品データを取得)
                 goods_search_result = GoodsTBL.objects.select_related()\
                 .filter(exact_cate, exact_ronsaku\
                 & (contains_name | contains_color | contains_price | contains_size)\
